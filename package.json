@@ -1,0 +1,13 @@
+{
+  "name": "vallejo-calzados",
+  "version": "1.0.0",
+  "description": "App de carga de productos para Vallejo Calzados con IA (Gemini)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mssql": "^10.0.1"
+  }
+}

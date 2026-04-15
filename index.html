@@ -91,7 +91,7 @@
         }
 
         main {
-            max-width: 1024px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
             display: grid;
@@ -99,9 +99,10 @@
             gap: 20px;
         }
 
-        @media (min-width: 768px) {
+        /* Desktop only: imagen + formulario lado a lado */
+        @media (min-width: 1080px) {
             main {
-                grid-template-columns: minmax(280px, 360px) 1fr;
+                grid-template-columns: minmax(300px, 400px) 1fr;
             }
         }
 
@@ -123,23 +124,41 @@
 
         /* Camera & Image Area */
         .media-container {
-            width: 100%;
-            aspect-ratio: 4/3;
+            width: 75%;
+            max-width: 320px;
+            aspect-ratio: 1/1;
+            margin: 0 auto 15px auto;
             background: #e0e0e0;
             border-radius: var(--radius-md);
             overflow: hidden;
             position: relative;
-            margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             border: 2px dashed #9e9e9e;
         }
 
-        #camera-preview, #image-preview {
+        /* En desktop, ancho completo y proporción 4/3 */
+        @media (min-width: 1080px) {
+            .media-container {
+                width: 100%;
+                max-width: none;
+                aspect-ratio: 4/3;
+            }
+        }
+
+        #camera-preview {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: none;
+        }
+
+        #image-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #fff;
             display: none;
         }
 
@@ -212,7 +231,8 @@
             gap: 10px;
         }
 
-        @media (min-width: 1100px) {
+        /* Desktop: pares de campos en 2 columnas */
+        @media (min-width: 1080px) {
             .form-row {
                 grid-template-columns: 1fr 1fr;
             }
@@ -266,6 +286,7 @@
             100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
         }
 
+
         .warning-banner {
             background: #fff3cd;
             color: #856404;
@@ -296,27 +317,170 @@
         }
 
         th, td {
-            padding: 12px;
+            padding: 10px 12px;
             text-align: left;
             border-bottom: 1px solid var(--border);
+            font-size: 0.88rem;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        td .cell {
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
             white-space: nowrap;
+            display: block;
+        }
+
+        td .cell-wrap {
+            max-width: 220px;
+            word-break: break-word;
+            white-space: normal;
+            line-height: 1.4;
+            display: block;
         }
 
         th {
             font-weight: 600;
+            font-size: 0.82rem;
             color: var(--text-light);
             background: var(--background);
+            white-space: nowrap;
         }
 
         tr:last-child td {
             border-bottom: none;
         }
-        
+
+        /* Toast notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            min-width: 280px;
+            max-width: 420px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+            font-size: 0.92rem;
+            line-height: 1.4;
+            pointer-events: all;
+            animation: toast-in 0.3s cubic-bezier(.21,1.02,.73,1) forwards;
+            color: #fff;
+        }
+        .toast.success { background: #2e7d32; }
+        .toast.error   { background: #c62828; }
+        .toast-icon  { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+        .toast-body  { flex: 1; }
+        .toast-title { font-weight: 700; margin-bottom: 2px; }
+        .toast-msg   { opacity: 0.88; font-size: 0.85rem; }
+        .toast-close {
+            background: none; border: none; color: #fff;
+            opacity: 0.7; cursor: pointer; font-size: 1.1rem;
+            flex-shrink: 0; padding: 0; line-height: 1;
+        }
+        .toast-close:hover { opacity: 1; }
+        .toast.hiding { animation: toast-out 0.25s ease forwards; }
+        @keyframes toast-in  { from { opacity:0; transform: translateY(20px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
+        @keyframes toast-out { from { opacity:1; transform: translateY(0) scale(1); }  to { opacity:0; transform: translateY(10px) scale(0.95); } }
+
+        .disp-trigger {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            background: var(--background);
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            transition: all 0.3s;
+        }
+        .disp-trigger:focus, .disp-trigger.open {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(26,35,126,0.1);
+        }
+        .disp-trigger span:first-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .disp-arrow { flex-shrink: 0; margin-left: 6px; transition: transform 0.2s; }
+        .disp-trigger.open .disp-arrow { transform: rotate(180deg); }
+
+        .disp-panel {
+            position: absolute;
+            z-index: 200;
+            top: calc(100% + 2px);
+            left: 0;
+            min-width: 100%;
+            width: max-content;
+            max-width: 420px;
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 4px 2px;
+        }
+
+        .disp-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 14px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            user-select: none;
+            transition: background 0.15s;
+        }
+        .disp-item:hover { background: var(--background); }
+        .disp-item input[type=checkbox] { flex-shrink: 0; accent-color: var(--primary); width: 15px; height: 15px; }
+
         .thumb-sm {
             width: 40px;
             height: 40px;
             border-radius: 6px;
             object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .thumb-sm:hover {
+            transform: scale(1.12);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+
+        /* Modal previsualización imagen */
+        #img-preview-modal {
+            cursor: zoom-out;
+        }
+
+        #img-preview-modal img {
+            max-width: 92vw;
+            max-height: 88vh;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            object-fit: contain;
+            display: block;
         }
 
         /* Modal */
@@ -454,16 +618,17 @@
                 ⚠️ La IA tiene baja confianza en esta clasificación, por favor revisá los campos.
             </div>
 
-            <form id="product-form" onsubmit="saveProduct(event)">
+            <form id="product-form" onsubmit="saveProduct(event)" autocomplete="off">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nommarca">Marca</label>
-                        <input type="text" id="nommarca" list="marcas-list" placeholder="Ej: Nike" oninput="onBrandChange()">
+                        <input type="text" id="nommarca" list="marcas-list" placeholder="Ej: Nike" oninput="onBrandChange()" onchange="onBrandChange()">
                         <datalist id="marcas-list"></datalist>
+                        <span id="nueva-marca-hint" class="hidden" style="font-size:0.8rem;color:var(--primary);cursor:pointer;display:inline-flex;align-items:center;gap:4px;margin-top:4px;" onclick="openNuevaMarcaModal()">➕ Agregar nueva marca/proveedor</span>
                     </div>
                     <div class="form-group">
                         <label for="nomprov">Proveedor</label>
-                        <input type="text" id="nomprov" list="prov-marca-list" placeholder="Proveedor...">
+                        <input type="text" id="nomprov" list="prov-marca-list" placeholder="Proveedor..." onchange="onProvChange()">
                         <datalist id="prov-marca-list"></datalist>
                     </div>
                 </div>
@@ -472,64 +637,41 @@
                         <label for="nomseccion">Sección</label>
                         <select id="nomseccion" required>
                             <option value="">Seleccionar...</option>
-                            <option value="Accesorios">Accesorios</option>
-                            <option value="0">0</option>
-                            <option value="Calzados">Calzados</option>
-                            <option value="Indumentaria">Indumentaria</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
                         <label for="nomgenero">Género</label>
-                        <select id="nomgenero">
+                        <select id="nomgenero" onchange="buscarTallesDebounced(); generarSeoLocal()">
                             <option value="">Sin especificar</option>
-                            <option value="DAMA">DAMA</option>
-                            <option value="HOMBRE">HOMBRE</option>
-                            <option value="NIÑA">NIÑA</option>
-                            <option value="NIÑO">NIÑO</option>
-                            <option value="UNISEX">UNISEX</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="nomdep">Departamento</label>
+                        <select id="nomdep">
+                            <option value="">Sin especificar</option>
+                            <option value="Urbano">Urbano</option>
+                            <option value="Fútbol">Fútbol</option>
+                            <option value="Training">Training</option>
+                            <option value="Outdoors">Outdoors</option>
+                            <option value="Tenis">Tenis</option>
+                            <option value="Rugby">Rugby</option>
+                            <option value="Básquet">Básquet</option>
+                            <option value="Hockey">Hockey</option>
+                            <option value="Natación">Natación</option>
+                            <option value="Ciclismo">Ciclismo</option>
+                            <option value="Running">Running</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="nomflia">Familia</label>
                         <select id="nomflia" required>
                             <option value="">Seleccionar...</option>
-                            <option value="ACC.CUIDADO PERSONAL">ACC.CUIDADO PERSONAL</option>
-                            <option value="ACC.DEP.HOCKEY">ACC.DEP.HOCKEY</option>
-                            <option value="ACC.DEP.OUTDOORS">ACC.DEP.OUTDOORS</option>
-                            <option value="ACC.DEP.RUNNING">ACC.DEP.RUNNING</option>
-                            <option value="ACC.DEP.TRAINING">ACC.DEP.TRAINING</option>
-                            <option value="ACC.DEPORTIVOS">ACC.DEPORTIVOS</option>
-                            <option value="ACC.MARROQUINERIA">ACC.MARROQUINERIA</option>
-                            <option value="ACC.DEP.TENIS">ACC.DEP.TENIS</option>
-                            <option value="ACC.MODA">ACC.MODA</option>
-                            <option value="ACC.DEP.NATACION">ACC.DEP.NATACION</option>
-                            <option value="ACC.DEP.CICLISMO">ACC.DEP.CICLISMO</option>
-                            <option value="ACC.DEP.FUTBOL">ACC.DEP.FUTBOL</option>
-                            <option value="ACC.DEP.RUGBY">ACC.DEP.RUGBY</option>
-                            <option value="ACC.LIMPIEZA DEL CALZADO">ACC.LIMPIEZA DEL CALZADO</option>
-                            <option value="990">990</option>
-                            <option value="CALZADO DEPORTIVO">CALZADO DEPORTIVO</option>
-                            <option value="INDUM.URBANO">INDUM.URBANO</option>
-                            <option value="INDUM.TRAINING">INDUM.TRAINING</option>
-                            <option value="CALZADO INF. VESTIR">CALZADO INF. VESTIR</option>
-                            <option value="INDUM.FUTBOL">INDUM.FUTBOL</option>
-                            <option value="CALZADO T. LIBRE">CALZADO T. LIBRE</option>
-                            <option value="CALZADO URBANO">CALZADO URBANO</option>
-                            <option value="INDUM.CICLISMO">INDUM.CICLISMO</option>
-                            <option value="INDUM.HOKEY">INDUM.HOKEY</option>
-                            <option value="INDUM.NATACION">INDUM.NATACION</option>
-                            <option value="INDUM.OUTDOORS">INDUM.OUTDOORS</option>
-                            <option value="INDUM.RUNNING">INDUM.RUNNING</option>
-                            <option value="INDUM.TENIS">INDUM.TENIS</option>
-                            <option value="INDUM.BASQUET">INDUM.BASQUET</option>
-                            <option value="INDUM.RUGBY">INDUM.RUGBY</option>
-                            <option value="Indum.TRAINING">Indum.TRAINING</option>
-                            <option value="INDUM.COLEGIAL">INDUM.COLEGIAL</option>
-                            <option value="Indum.FUTBOL">Indum.FUTBOL</option>
+                            <!-- opciones cargadas desde SP_OBTENER_FAMILIAS -->
+                            
                         </select>
                     </div>
 
@@ -537,15 +679,75 @@
                         <label for="temporada">Temporada</label>
                         <select id="temporada">
                             <option value="">Sin especificar</option>
-                            <option value="TODO TIEMPO">TODO TIEMPO</option>
-                            <option value="INVIERNO">INVIERNO</option>
-                            <option value="COLEGIAL">COLEGIAL</option>
-                            <option value="VERANO">VERANO</option>
-                            <option value="LINEA">LINEA</option>
-                            <option value="ALTO VERANO">ALTO VERANO</option>
-                            <option value="ALTO INVIERNO">ALTO INVIERNO</option>
-                            <option value="2">2</option>
+                            <!-- opciones cargadas desde SP_OBTENER_TEMPORADAS -->
                         </select>
+                    </div>
+
+                    <div class="form-group" data-disp-wrapper style="position:relative;">
+                        <label>Disponibilidad</label>
+                        <button type="button" id="disp-btn" onclick="toggleDispDropdown()" class="disp-trigger">
+                            <span id="disp-btn-label">Sin seleccionar</span>
+                            <span class="disp-arrow">▾</span>
+                        </button>
+                        <div id="disponibilidad-container" class="disp-panel" style="display:none;">
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="TODAS SPT" onchange="updateDispBtn()"> TODAS SPT</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="GRUPO 1 SPT 20-22-10-12-5-18-9-39" onchange="updateDispBtn()"> GRUPO 1 SPT 20-22-10-12-5-18-9-39</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="GRUPO 2 SPT 17-11-23-24-27-25-8" onchange="updateDispBtn()"> GRUPO 2 SPT 17-11-23-24-27-25-8</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="TODAS FK" onchange="updateDispBtn()"> TODAS FK</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="TODAS SPT + TODAS FK" onchange="updateDispBtn()"> TODAS SPT + TODAS FK</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="NIKE39-20-12-18-5-10-11-24-25-22-23" onchange="updateDispBtn()"> NIKE39-20-12-18-5-10-11-24-25-22-23</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="TESI ECOMMERCE 198" onchange="updateDispBtn()"> TESI ECOMMERCE 198</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="TESI LANZ 20-05-12-18-10-22-39" onchange="updateDispBtn()"> TESI LANZ 20-05-12-18-10-22-39</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="TODAS FK + 198" onchange="updateDispBtn()"> TODAS FK + 198</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="TODAS DIGITAL 198 +199" onchange="updateDispBtn()"> TODAS DIGITAL 198 +199</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="TODAS VALLEJO" onchange="updateDispBtn()"> TODAS VALLEJO</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="TODAS VALLEJO + TODAS SPT" onchange="updateDispBtn()"> TODAS VALLEJO + TODAS SPT</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="TODAS VALLEJO+TODAS SPT+TODAS FK" onchange="updateDispBtn()"> TODAS VALLEJO+TODAS SPT+TODAS FK</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="PUEBLO ECOMMERCE 199" onchange="updateDispBtn()"> PUEBLO ECOMMERCE 199</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="PCROC13-21-35-33-4-38-34-28-36-2-15" onchange="updateDispBtn()"> PCROC13-21-35-33-4-38-34-28-36-2-15</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="P.Z.AGUA13-21-35-33-4-38-34-28-36-2" onchange="updateDispBtn()"> P.Z.AGUA13-21-35-33-4-38-34-28-36-2</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="P.LANZ.PM21-13-26-28-33-35-38-30-36" onchange="updateDispBtn()"> P.LANZ.PM21-13-26-28-33-35-38-30-36</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="P.DAMA 38-13-21-33-28-35-15-26-30" onchange="updateDispBtn()"> P.DAMA 38-13-21-33-28-35-15-26-30</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="P.TOP HOMBRE 13-21-33-35-28-15-30" onchange="updateDispBtn()"> P.TOP HOMBRE 13-21-33-35-28-15-30</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="PH2-4-13-21-26-28-30-33-34-35-36-38" onchange="updateDispBtn()"> PH2-4-13-21-26-28-30-33-34-35-36-38</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="P.NENA38-13-21-33-28-35-15-26-30-34" onchange="updateDispBtn()"> P.NENA38-13-21-33-28-35-15-26-30-34</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="P.URB ADULT 13-35-21-28-15-33-38-26" onchange="updateDispBtn()"> P.URB ADULT 13-35-21-28-15-33-38-26</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="P.URB.KID13-35-21-28-15-33-38-26-34" onchange="updateDispBtn()"> P.URB.KID13-35-21-28-15-33-38-26-34</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="PVAL2-13-36-34-21-30-28-15-26-33-38" onchange="updateDispBtn()"> PVAL2-13-36-34-21-30-28-15-26-33-38</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="2" onchange="updateDispBtn()"> 2</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="3" onchange="updateDispBtn()"> 3</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="4" onchange="updateDispBtn()"> 4</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="5" onchange="updateDispBtn()"> 5</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="8" onchange="updateDispBtn()"> 8</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="9" onchange="updateDispBtn()"> 9</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="10" onchange="updateDispBtn()"> 10</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="11" onchange="updateDispBtn()"> 11</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="12" onchange="updateDispBtn()"> 12</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="13" onchange="updateDispBtn()"> 13</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="15" onchange="updateDispBtn()"> 15</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="16" onchange="updateDispBtn()"> 16</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="17" onchange="updateDispBtn()"> 17</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="18" onchange="updateDispBtn()"> 18</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="19" onchange="updateDispBtn()"> 19</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="20" onchange="updateDispBtn()"> 20</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="21" onchange="updateDispBtn()"> 21</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="22" onchange="updateDispBtn()"> 22</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="23" onchange="updateDispBtn()"> 23</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="24" onchange="updateDispBtn()"> 24</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="25" onchange="updateDispBtn()"> 25</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="26" onchange="updateDispBtn()"> 26</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="27" onchange="updateDispBtn()"> 27</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="28" onchange="updateDispBtn()"> 28</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="30" onchange="updateDispBtn()"> 30</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="31" onchange="updateDispBtn()"> 31</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="33" onchange="updateDispBtn()"> 33</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="34" onchange="updateDispBtn()"> 34</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="35" onchange="updateDispBtn()"> 35</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="36" onchange="updateDispBtn()"> 36</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="38" onchange="updateDispBtn()"> 38</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="39" onchange="updateDispBtn()"> 39</label>
+                            <label class="disp-item"><input type="checkbox" name="disponibilidad" value="TODAS" onchange="updateDispBtn()"> TODAS</label>
+                        </div>
                     </div>
                 </div>
 
@@ -553,108 +755,16 @@
                     <label for="nomlinea">Línea</label>
                     <select id="nomlinea" required>
                         <option value="">Seleccionar...</option>
-                        <option value="PERFUME">PERFUME</option>
-                        <option value="BOLSOS">BOLSOS</option>
-                        <option value="CANILLERAS">CANILLERAS</option>
-                        <option value="ENTRENAMIENTO">ENTRENAMIENTO</option>
-                        <option value="GORROS INVIERNO">GORROS INVIERNO</option>
-                        <option value="GUANTES">GUANTES</option>
-                        <option value="MEDIAS">MEDIAS</option>
-                        <option value="MOCHILAS">MOCHILAS</option>
-                        <option value="PALOS DE HOCKEY">PALOS DE HOCKEY</option>
-                        <option value="REPUESTOS">REPUESTOS</option>
-                        <option value="PROTECCIONES">PROTECCIONES</option>
-                        <option value="RINONERAS">RINONERAS</option>
-                        <option value="GORRAS Y PILUSOS">GORRAS Y PILUSOS</option>
-                        <option value="HIDRATACION">HIDRATACION</option>
-                        <option value="BILLETERAS/FICHEROS">BILLETERAS/FICHEROS</option>
-                        <option value="CARTERAS">CARTERAS</option>
-                        <option value="PELOTAS VARIAS">PELOTAS VARIAS</option>
-                        <option value="VALIJAS">VALIJAS</option>
-                        <option value="TALCOS">TALCOS</option>
-                        <option value="BICICLETA">BICICLETA</option>
-                        <option value="PELOTAS FUTBOL">PELOTAS FUTBOL</option>
-                        <option value="CINTOS">CINTOS</option>
-                        <option value="MOCHILA COLEGIAL">MOCHILA COLEGIAL</option>
-                        <option value="MODA">MODA</option>
-                        <option value="PANUELOS / CHALINAS">PANUELOS / CHALINAS</option>
-                        <option value="PLANTILLAS">PLANTILLAS</option>
-                        <option value="ANTIPARRAS">ANTIPARRAS</option>
-                        <option value="GORROS NATACION">GORROS NATACION</option>
-                        <option value="PALETAS Y RAQUETAS">PALETAS Y RAQUETAS</option>
-                        <option value="RELOJES">RELOJES</option>
-                        <option value="TENIS">TENIS</option>
-                        <option value="HOCKEY">HOCKEY</option>
-                        <option value="TRAINING">TRAINING</option>
-                        <option value="ROLLER TABLAS Y PATINES">ROLLER TABLAS Y PATINES</option>
-                        <option value="ANT NOLIN">ANT NOLIN</option>
-                        <option value="RUNNING">RUNNING</option>
-                        <option value="LENTES">LENTES</option>
-                        <option value="FUTBOL FG">FUTBOL FG</option>
-                        <option value="FUTBOL TF">FUTBOL TF</option>
-                        <option value="NATACION">NATACION</option>
-                        <option value="SANDALIAS">SANDALIAS</option>
-                        <option value="BASQUET">BASQUET</option>
-                        <option value="FUTBOL">FUTBOL</option>
-                        <option value="OUT DOORS">OUT DOORS</option>
-                        <option value="POMADAS">POMADAS</option>
-                        <option value="Botas Clásicas">Botas Clásicas</option>
-                        <option value="OUTDOORS">OUTDOORS</option>
-                        <option value="DEPORTES VARIOS">DEPORTES VARIOS</option>
-                        <option value="MALETINES">MALETINES</option>
-                        <option value="TRAIL RUNNING">TRAIL RUNNING</option>
-                        <option value="ALPARGATAS">ALPARGATAS</option>
-                        <option value="REMERAS">REMERAS</option>
-                        <option value="DEPORTIVAS">DEPORTIVAS</option>
-                        <option value="BORCEGO">BORCEGO</option>
-                        <option value="BOTAS CLÁSICAS">BOTAS CLÁSICAS</option>
-                        <option value="BOTAS MODA">BOTAS MODA</option>
-                        <option value="CHATITAS/BALERINAS">CHATITAS/BALERINAS</option>
-                        <option value="CHINELAS Y PANTUFLAS">CHINELAS Y PANTUFLAS</option>
-                        <option value="GUARACHAS">GUARACHAS</option>
-                        <option value="LONA CASUAL">LONA CASUAL</option>
-                        <option value="MOCASIN">MOCASIN</option>
-                        <option value="OJOTAS">OJOTAS</option>
-                        <option value="SANDALIA VESTIR">SANDALIA VESTIR</option>
-                        <option value="SANDALIAS CLÁSICAS">SANDALIAS CLÁSICAS</option>
-                        <option value="SANDALIAS INFORMAL">SANDALIAS INFORMAL</option>
-                        <option value="ZAPATO URBANO">ZAPATO URBANO</option>
-                        <option value="ZAPATOS VESTIR">ZAPATOS VESTIR</option>
-                        <option value="SANDALIAS Y ZUECOS AGUA">SANDALIAS Y ZUECOS AGUA</option>
-                        <option value="ZUECOS CLÁSICOS">ZUECOS CLÁSICOS</option>
-                        <option value="ZUECOS MODA">ZUECOS MODA</option>
-                        <option value="CHINELAS AGUA">CHINELAS AGUA</option>
-                        <option value="OJOTAS AGUA">OJOTAS AGUA</option>
-                        <option value="GUILLERMINA COLEGIAL">GUILLERMINA COLEGIAL</option>
-                        <option value="VESTIR/INFORMAL">VESTIR/INFORMAL</option>
-                        <option value="RUGBY">RUGBY</option>
-                        <option value="BOTAS/BOTINETAS">BOTAS/BOTINETAS</option>
-                        <option value="MOCASINES/NAUTICOS">MOCASINES/NAUTICOS</option>
-                        <option value="ZPTOS SUPERCONFORT">ZPTOS SUPERCONFORT</option>
-                        <option value="COLEGIAL DEPORTIVO">COLEGIAL DEPORTIVO</option>
-                        <option value="CALZA">CALZA</option>
-                        <option value="PANTALON">PANTALON</option>
-                        <option value="CAMISETA">CAMISETA</option>
-                        <option value="CAMPERAS">CAMPERAS</option>
-                        <option value="MUSCULOSA">MUSCULOSA</option>
-                        <option value="TRAJE DE BAÑO">TRAJE DE BAÑO</option>
-                        <option value="BUZO">BUZO</option>
-                        <option value="CHALECO">CHALECO</option>
-                        <option value="ZAPATO COLEGIAL">ZAPATO COLEGIAL</option>
-                        <option value="ROMPEVIENTOS">ROMPEVIENTOS</option>
-                        <option value="SHORT">SHORT</option>
-                        <option value="TOP DEPORTIVO">TOP DEPORTIVO</option>
-                        <option value="FALDA">FALDA</option>
-                        <option value="POLOS">POLOS</option>
-                        <option value="BERMUDA">BERMUDA</option>
-                        <option value="CONJUNTOS">CONJUNTOS</option>
-                        <option value="ABRIGOS">ABRIGOS</option>
-                        <option value="NAUTICO COLEGIAL">NAUTICO COLEGIAL</option>
-                        <option value="VESTIDO">VESTIDO</option>
-                        <option value="SHORT BAÑO">SHORT BAÑO</option>
-                        <option value="CAMISAS">CAMISAS</option>
-                        <option value="BIKINIS/MALLAS">BIKINIS/MALLAS</option>
-                        <option value="ROPA INTERIOR">ROPA INTERIOR</option>
+                        <!-- opciones cargadas desde SP_OBTENER_LINEAS -->
+                     
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="material">Material</label>
+                    <select id="material">
+                        <option value="">Sin especificar</option>
+                        <!-- opciones cargadas desde SP_OBTENER_MATERIALES -->
                     </select>
                 </div>
 
@@ -668,18 +778,14 @@
                     <textarea id="descripcion" placeholder="Descripción del producto..."></textarea>
                 </div>
 
-                <div class="form-row">
+                <div class="form-row" style="grid-template-columns:1fr 1fr 1fr;">
                     <div class="form-group">
                         <label for="color">Color Principal</label>
-                        <input type="text" id="color" placeholder="Ej: Azul">
+                        <select id="color" onchange="generarSeoLocal(); document.getElementById('color-match-hint').textContent=''">
+                            <option value="">Sin especificar</option>
+                        </select>
+                        <span id="color-match-hint" style="font-size:0.78rem;margin-top:4px;display:block;"></span>
                     </div>
-                    <div class="form-group">
-                        <label for="talle">Talle / Número</label>
-                        <input type="text" id="talle" placeholder="Ej: 38">
-                    </div>
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
                         <label for="costo">Costo ($)</label>
                         <input type="number" id="costo" step="0.01" placeholder="0.00">
@@ -690,14 +796,59 @@
                     </div>
                 </div>
 
+                <!-- Talles: sección principal -->
+                <div id="talles-section">
+                    <label style="display:flex;align-items:center;gap:8px;">
+                        Talles
+                        <span id="talles-status" class="hidden" style="font-size:0.82rem;color:var(--text-light);font-weight:400;">🔍 Buscando...</span>
+                    </label>
+
+                    <!-- Talles desde DB -->
+                    <div id="talles-db-section" class="hidden">
+                        <div style="font-size:0.78rem;color:var(--success);margin-bottom:4px;" id="talles-fuente"></div>
+                        <div id="talles-nombre-curva" style="font-size:0.8rem;color:var(--text-light);margin-bottom:8px;"></div>
+                        <div id="talles-chips" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;"></div>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <div style="flex:1;">
+                                <label style="font-size:0.78rem;margin-bottom:4px;">Desde</label>
+                                <select id="talle_desde_sel" onchange="actualizarRango()">
+                                    <option value="">Desde...</option>
+                                </select>
+                            </div>
+                            <span style="color:var(--text-light);font-weight:600;margin-top:18px;">→</span>
+                            <div style="flex:1;">
+                                <label style="font-size:0.78rem;margin-bottom:4px;">Hasta</label>
+                                <select id="talle_hasta_sel" onchange="actualizarRango()">
+                                    <option value="">Hasta...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="talles-rango-preview" class="hidden" style="font-size:0.8rem;color:var(--primary);margin-top:8px;padding:8px 10px;background:var(--background);border-radius:8px;border-left:3px solid var(--primary);"></div>
+                    </div>
+
+                    <!-- Fallback manual -->
+                    <div id="talles-manual" class="hidden">
+                        <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;">
+                            <input type="text" id="talle_desde" placeholder="Desde (ej: 36 / S)" style="flex:1;">
+                            <span style="color:var(--text-light);font-weight:600;">→</span>
+                            <input type="text" id="talle_hasta" placeholder="Hasta (ej: 42 / XL)" style="flex:1;">
+                        </div>
+                        <span style="font-size:0.78rem;color:var(--text-light);">Sin talles en el sistema. Ingresá el rango manualmente.</span>
+                    </div>
+
+                </div>
+
+
+
+
                 <div class="form-group">
                     <label for="observaciones">Observaciones</label>
                     <textarea id="observaciones" placeholder="Notas adicionales..."></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="tituloseo">🏷️ Título SEO <span style="font-weight:400;color:var(--text-light);font-size:0.8rem;">(Producto + Marca + Modelo + Usuario + Atributo)</span></label>
-                    <input type="text" id="tituloseo" placeholder="Ej: Zapatillas Nike Air Max Running Hombre Negras">
+                    <label for="tituloseo">🏷️ Título SEO <span style="font-weight:400;color:var(--text-light);font-size:0.8rem;">(Producto + Marca + Usuario + Modelo + Atributo)</span></label>
+                    <input type="text" id="tituloseo" placeholder="Ej: Zapatillas Nike Hombre Air Max Running Negras">
                 </div>
 
                 <div class="action-buttons mt-3">
@@ -722,6 +873,8 @@
                         <th>Proveedor</th>
                         <th>Código</th>
                         <th>Sección</th>
+                        <th>Departamento</th>
+                        <th>Disponibilidad</th>
                         <th>Familia</th>
                         <th>Color</th>
                         <th>Costo</th>
@@ -735,6 +888,35 @@
             </table>
         </div>
     </main>
+
+    <!-- Modal nueva marca/proveedor -->
+    <div class="modal-overlay" id="nueva-marca-modal">
+        <div class="modal">
+            <h3 class="mb-3" style="color: var(--primary);">➕ Nueva Marca / Proveedor</h3>
+            <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:15px;">Registrá el nuevo contacto encontrado en el viaje.</p>
+            <div class="form-group">
+                <label for="nm-marca">Marca *</label>
+                <input type="text" id="nm-marca" placeholder="Ej: Li-Ning">
+            </div>
+            <div class="form-group">
+                <label for="nm-proveedor">Proveedor / Fábrica</label>
+                <input type="text" id="nm-proveedor" placeholder="Ej: Guangzhou Sports Co.">
+            </div>
+            <div class="form-group">
+                <label for="nm-obs">Observaciones</label>
+                <textarea id="nm-obs" style="min-height:60px;" placeholder="Contacto, feria, stand..."></textarea>
+            </div>
+            <div class="action-buttons mt-3">
+                <button class="btn btn-primary" onclick="saveNuevaMarca()">💾 Guardar</button>
+                <button class="btn btn-secondary" onclick="closeNuevaMarcaModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal previsualización imagen -->
+    <div class="modal-overlay" id="img-preview-modal" onclick="closeImgPreview()">
+        <img id="img-preview-full" src="" alt="Vista completa">
+    </div>
 
     <!-- Modals & Overlays -->
     <div class="modal-overlay" id="nb-modal">
@@ -776,8 +958,8 @@
 
     <!-- Application Logic -->
     <script>
-        // Brand → Provider mapping
-        const brandProviderMap = {
+        // Brand → Provider mapping (loaded dynamically from SP_OBTENER_MARCA_PROVEEDOR)
+        let brandProviderMap = {
             '47 STREET': ['MIDING S.R.L'],
             'A Nation': ['ADIDAS ARGENTINA S.A.'],
             'ADDNICE': ['Grupo Addnice S.A.'],
@@ -938,23 +1120,48 @@
             const brand = document.getElementById('nommarca').value.trim();
             const provDatalist = document.getElementById('prov-marca-list');
             const provInput = document.getElementById('nomprov');
+            const hint = document.getElementById('nueva-marca-hint');
             const matchKey = Object.keys(brandProviderMap).find(k => k.toLowerCase() === brand.toLowerCase());
             if (matchKey) {
                 const providers = brandProviderMap[matchKey];
                 provDatalist.innerHTML = providers.map(p => `<option value="${p}">`).join('');
-                if (!provInput.value || provInput.classList.contains('ai-suggested')) {
-                    provInput.value = providers[0];
-                    provInput.classList.add('ai-suggested');
-                    provInput.addEventListener('change', () => provInput.classList.remove('ai-suggested'), {once: true});
-                }
+                provInput.value = providers[0];
+                provInput.classList.add('ai-suggested');
+                provInput.addEventListener('change', () => provInput.classList.remove('ai-suggested'), {once: true});
+                hint.classList.add('hidden');
             } else {
                 provDatalist.innerHTML = '';
+                hint.classList.toggle('hidden', brand.length < 2);
             }
+            buscarTallesDebounced();
+            generarSeoLocal();
+        }
+
+        function onProvChange() {
+            buscarTallesDebounced();
+            generarSeoLocal();
+        }
+
+        function generarSeoLocal() {
+            const marca  = document.getElementById('nommarca').value.trim();
+            if (!marca) return;
+            const seoEl  = document.getElementById('tituloseo');
+            // Solo sobreescribir si está vacío o fue sugerido por IA
+            if (seoEl.value && !seoEl.classList.contains('ai-suggested')) return;
+            const linea  = document.getElementById('nomlinea').value.trim();
+            const flia   = document.getElementById('nomflia').value.trim();
+            const genero = document.getElementById('nomgenero').value.trim();
+            const color  = document.getElementById('color').value.trim();
+            const dep    = document.getElementById('nomdep').value.trim();
+            const partes = [linea || flia || dep, marca, genero, color].filter(Boolean);
+            seoEl.value = partes.join(' ').slice(0, 70).toUpperCase();
+            seoEl.classList.add('ai-suggested');
+            seoEl.addEventListener('change', () => seoEl.classList.remove('ai-suggested'), { once: true });
         }
 
         // State
-        let currentImageBase64 = null;
-        let products = JSON.parse(localStorage.getItem('vallejo_products')) || [];
+        let currentImageBase64  = null;
+        let originalImageBase64 = null;
         let stream = null;
 
         // Elements
@@ -976,21 +1183,358 @@
         };
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const apiKey = localStorage.getItem('vallejo_gemini_key');
             if (apiKey) els.apiKeyInput.value = apiKey;
             else openSettings();
 
-            // Populate brand datalist
-            const marcasDatalist = document.getElementById('marcas-list');
-            Object.keys(brandProviderMap).sort().forEach(brand => {
-                const opt = document.createElement('option');
-                opt.value = brand;
-                marcasDatalist.appendChild(opt);
-            });
+            await Promise.all([
+                loadMarcasProveedores(),
+                loadSelect('nomseccion', '/api/secciones'),
+                loadSelect('nomgenero',  '/api/generos'),
+                loadSelect('nomflia',    '/api/familias'),
+                loadSelect('temporada',  '/api/temporadas'),
+                loadSelect('nomlinea',   '/api/lineas'),
+                loadMaterialList(),
+                loadColores(),
+            ]);
 
             updateTable();
+            clearForm();
         });
+
+        // ── Colores ───────────────────────────────────────────────────────────
+        let coloresDB = []; // [{ color, codigo }]
+
+        async function loadColores() {
+            try {
+                const res = await fetch('/api/colores');
+                coloresDB = await res.json();
+                coloresDB.sort((a, b) => a.color.localeCompare(b.color, 'es', { sensitivity: 'base' }));
+                const sel = document.getElementById('color');
+                coloresDB.forEach(({ color }) => {
+                    const opt = document.createElement('option');
+                    opt.value = color;
+                    opt.textContent = color;
+                    sel.appendChild(opt);
+                });
+            } catch (e) { console.error('Error cargando colores:', e); }
+        }
+
+        // Normaliza para comparación: minúsculas, sin tildes, guiones→espacio
+        function normColor(s) {
+            return s.toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[-\/_.]/g, ' ')
+                .replace(/\s+/g, ' ').trim();
+        }
+
+        // Traducción español/inglés → términos frecuentes en CEGID
+        const COLOR_TRANS = {
+            'negro':'black','negra':'black','blanco':'white','blanca':'white',
+            'rojo':'red','roja':'red','azul':'blue','verde':'green',
+            'amarillo':'yellow','amarilla':'yellow','naranja':'orange',
+            'rosa':'pink','violeta':'violet','morado':'purple','lila':'lilac',
+            'gris':'grey','marron':'brown','cafe':'brown','beige':'beige',
+            'crema':'cream','celeste':'sky','turquesa':'turquoise',
+            'dorado':'gold','plateado':'silver','bordo':'burgundy',
+            'vino':'vino','arena':'sand','coral':'coral','salmon':'salmon',
+            'lavanda':'lavender','ocre':'ocher','marino':'navy',
+            'azul marino':'navy','azul oscuro':'dark blue',
+            'blanco puro':'white','off white':'off white',
+            // inglés básico
+            'black':'black','white':'white','red':'red','blue':'blue',
+            'green':'green','yellow':'yellow','pink':'pink','grey':'grey',
+            'gray':'grey','brown':'brown','navy':'navy','gold':'gold',
+            'silver':'silver','orange':'orange','purple':'purple',
+        };
+
+        function matchColor(aiColor) {
+            if (!aiColor || coloresDB.length === 0) return;
+            const norm = normColor(aiColor);
+            // Deduplicar palabras del query
+            const palabras = [...new Set(norm.split(' ').filter(w => w.length >= 2))];
+
+            // Expandir con traducciones
+            const expandidas = new Set(palabras);
+            palabras.forEach(p => { if (COLOR_TRANS[p]) expandidas.add(COLOR_TRANS[p]); });
+            if (COLOR_TRANS[norm]) expandidas.add(COLOR_TRANS[norm]);
+            const expandidasArr = [...expandidas];
+
+            let bestScore = -1, bestColor = null;
+
+            coloresDB.forEach(({ color }) => {
+                const normDB = normColor(color);
+                // Deduplicar palabras del color en CEGID
+                const palabrasDB = [...new Set(normDB.split(' ').filter(w => w.length >= 2))];
+                let score = 0;
+
+                if (normDB === norm) {
+                    score = 10000;
+                } else {
+                    const qTotal  = expandidasArr.length;
+                    const dbTotal = palabrasDB.length;
+                    if (qTotal === 0 || dbTotal === 0) { score = 0; }
+                    else {
+                        // Cuántas palabras del query aparecen en el color CEGID
+                        const qInDB = expandidasArr.filter(w => palabrasDB.includes(w) || normDB.includes(w));
+                        // Cuántas palabras del color CEGID aparecen en el query
+                        const dbInQ = palabrasDB.filter(w => expandidas.has(w) || norm.includes(w));
+
+                        if (qInDB.length === 0) {
+                            score = 0;
+                        } else {
+                            // Cobertura: qué fracción del query está en DB y del DB en query
+                            const qCoverage  = qInDB.length  / qTotal;   // prioridad: queremos que el DB cubra el query
+                            const dbCoverage = dbInQ.length  / dbTotal;  // secundario: penaliza palabras extra en DB
+                            const matchLen   = qInDB.reduce((s, w) => s + w.length, 0);
+                            score = Math.round((qCoverage * 0.65 + dbCoverage * 0.35) * 1000) + matchLen;
+                        }
+                    }
+                }
+
+                if (score > bestScore) { bestScore = score; bestColor = color; }
+            });
+
+            // Solo aplicar si hubo al menos 1 coincidencia real (score > 0)
+            const hintEl = document.getElementById('color-match-hint');
+            if (bestScore > 0 && bestColor) {
+                const sel = document.getElementById('color');
+                sel.value = bestColor;
+                sel.classList.add('ai-suggested');
+                sel.addEventListener('change', () => { sel.classList.remove('ai-suggested'); hintEl.textContent = ''; }, { once: true });
+
+                let nivel, color, icono;
+                if (bestScore >= 10000) {
+                    nivel = 'Coincidencia exacta'; color = '#2e7d32'; icono = '🟢';
+                } else if (bestScore >= 800) {
+                    nivel = 'Coincidencia alta';   color = '#558b2f'; icono = '🟢';
+                } else if (bestScore >= 500) {
+                    nivel = 'Coincidencia media';  color = '#f57f17'; icono = '🟡';
+                } else {
+                    nivel = 'Coincidencia baja';   color = '#e65100'; icono = '🟠';
+                }
+                hintEl.innerHTML = `<span style="color:${color};font-weight:600;">${icono} ${nivel}</span> <span style="color:var(--text-light);">· IA sugirió: "${aiColor}"</span>`;
+            } else {
+                if (hintEl) hintEl.innerHTML = `<span style="color:#b71c1c;font-weight:600;">🔴 Sin coincidencia</span> <span style="color:var(--text-light);">· IA sugirió: "${aiColor}"</span>`;
+            }
+        }
+
+        async function loadMaterialList() {
+            try {
+                const res   = await fetch('/api/materiales');
+                const items = await res.json();
+                const sel   = document.getElementById('material');
+                items.forEach(val => {
+                    if (!val) return;
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    opt.textContent = val;
+                    sel.appendChild(opt);
+                });
+            } catch (e) { console.error('Error cargando materiales:', e); }
+        }
+
+        async function loadMarcasProveedores() {
+            try {
+                const [spData, localData] = await Promise.all([
+                    fetch('/api/marcas-proveedores').then(r => r.json()),
+                    fetch('/api/marcas-local').then(r => r.json()).catch(() => [])
+                ]);
+                brandProviderMap = spData;
+                // Merge local pre-alta entries
+                localData.forEach(({ marca, proveedor }) => {
+                    if (!marca) return;
+                    if (!brandProviderMap[marca]) brandProviderMap[marca] = [];
+                    if (proveedor && !brandProviderMap[marca].includes(proveedor))
+                        brandProviderMap[marca].push(proveedor);
+                });
+                const marcasDatalist = document.getElementById('marcas-list');
+                Object.keys(brandProviderMap).sort().forEach(brand => {
+                    const opt = document.createElement('option');
+                    opt.value = brand;
+                    marcasDatalist.appendChild(opt);
+                });
+            } catch (e) { console.error('Error cargando marcas/proveedores:', e); }
+        }
+
+        function openNuevaMarcaModal() {
+            const brand = document.getElementById('nommarca').value.trim();
+            document.getElementById('nm-marca').value = brand;
+            document.getElementById('nm-proveedor').value = '';
+            document.getElementById('nm-obs').value = '';
+            document.getElementById('nueva-marca-modal').style.display = 'flex';
+        }
+
+        function closeNuevaMarcaModal() {
+            document.getElementById('nueva-marca-modal').style.display = 'none';
+        }
+
+        async function saveNuevaMarca() {
+            const marca     = document.getElementById('nm-marca').value.trim();
+            const proveedor = document.getElementById('nm-proveedor').value.trim();
+            const obs       = document.getElementById('nm-obs').value.trim();
+            if (!marca) { alert('La marca es requerida.'); return; }
+            try {
+                await fetch('/api/marcas-local', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ marca, proveedor, observaciones: obs })
+                });
+                // Update in-memory map and datalist
+                if (!brandProviderMap[marca]) brandProviderMap[marca] = [];
+                if (proveedor && !brandProviderMap[marca].includes(proveedor))
+                    brandProviderMap[marca].push(proveedor);
+                const marcasDatalist = document.getElementById('marcas-list');
+                if (![...marcasDatalist.options].some(o => o.value === marca)) {
+                    const opt = document.createElement('option');
+                    opt.value = marca;
+                    marcasDatalist.appendChild(opt);
+                }
+                document.getElementById('nommarca').value = marca;
+                onBrandChange();
+                closeNuevaMarcaModal();
+                alert(`✅ "${marca}" agregada correctamente.`);
+            } catch (err) {
+                alert('Error al guardar: ' + err.message);
+            }
+        }
+
+        async function loadSelect(selectId, url) {
+            try {
+                const res   = await fetch(url);
+                const items = await res.json();
+                const sel   = document.getElementById(selectId);
+                items.forEach(val => {
+                    if (!val) return;
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    opt.textContent = val;
+                    sel.appendChild(opt);
+                });
+            } catch (e) { console.error(`Error cargando ${selectId}:`, e); }
+        }
+
+        // ── Talles ──────────────────────────────────────────────────────────
+        let _tallesDB = [];   // store current DB rows
+
+        let tallesDebounceTimer;
+        function buscarTallesDebounced() {
+            clearTimeout(tallesDebounceTimer);
+            tallesDebounceTimer = setTimeout(buscarTalles, 500);
+        }
+
+        async function buscarTalles() {
+            const marca   = document.getElementById('nommarca').value.trim();
+            const genero  = document.getElementById('nomgenero').value.trim();
+            const seccion = document.getElementById('nomseccion').value.trim();
+            if (!marca || !genero) return;
+
+            const statusEl = document.getElementById('talles-status');
+            const dbSec    = document.getElementById('talles-db-section');
+            const manualEl = document.getElementById('talles-manual');
+
+            statusEl.textContent = `🔍 Buscando talles para ${marca} / ${genero}...`;
+            statusEl.classList.remove('hidden');
+            dbSec.classList.add('hidden');
+            manualEl.classList.add('hidden');
+            document.getElementById('talles-rango-preview').classList.add('hidden');
+            _tallesDB = [];
+
+            try {
+                const res  = await fetch(`/api/talles?nommarca=${encodeURIComponent(marca)}&nomgenero=${encodeURIComponent(genero)}&nomseccion=${encodeURIComponent(seccion)}`);
+                const rows = await res.json();
+                statusEl.classList.add('hidden');
+                if (Array.isArray(rows) && rows.length > 0) {
+                    _tallesDB = rows;
+                    mostrarTallesDB(rows);
+                } else {
+                    manualEl.classList.remove('hidden');
+                }
+            } catch (e) {
+                statusEl.classList.add('hidden');
+                manualEl.classList.remove('hidden');
+                console.error('Error buscando talles:', e);
+            }
+        }
+
+        function mostrarTallesDB(rows) {
+            const chipsEl   = document.getElementById('talles-chips');
+            const desdeEl   = document.getElementById('talle_desde_sel');
+            const hastaEl   = document.getElementById('talle_hasta_sel');
+            const fuenteEl  = document.getElementById('talles-fuente');
+
+            chipsEl.innerHTML = '';
+            desdeEl.innerHTML = '<option value="">Desde...</option>';
+            hastaEl.innerHTML = '<option value="">Hasta...</option>';
+
+            rows.forEach((r, i) => {
+                const t1  = (r.TALLE_CEGID  || '').toString().trim();
+                const t2  = (r.TALLE2_CEGID || '').toString().trim();
+                const lbl = t2 && t2 !== t1 ? `${t1} (${t2})` : t1;
+
+                // chip
+                const chip = document.createElement('span');
+                chip.textContent = lbl;
+                chip.style.cssText = 'padding:3px 8px;background:var(--background);border:1.5px solid var(--border);border-radius:20px;font-size:0.78rem;font-weight:600;color:var(--text-main);';
+                chipsEl.appendChild(chip);
+
+                // options
+                const optD = new Option(lbl, i); desdeEl.appendChild(optD);
+                const optH = new Option(lbl, i); hastaEl.appendChild(optH);
+            });
+
+            fuenteEl.textContent = `✅ ${rows.length} talles obtenidos del sistema`;
+            const curva = (rows[0]?.nombreCurva || rows[0]?.NOMBRECURVA || '').toString().trim();
+            const curvaEl = document.getElementById('talles-nombre-curva');
+            curvaEl.innerHTML = curva ? `<b>Nombre de Curva:</b> ${curva}` : '';
+            document.getElementById('talles-db-section').classList.remove('hidden');
+        }
+
+        function actualizarRango() {
+            const di = parseInt(document.getElementById('talle_desde_sel').value);
+            const hi = parseInt(document.getElementById('talle_hasta_sel').value);
+            const previewEl = document.getElementById('talles-rango-preview');
+            if (isNaN(di) || isNaN(hi) || hi < di) { previewEl.classList.add('hidden'); return; }
+            const rango = _tallesDB.slice(di, hi + 1).map(r => {
+                const t1 = (r.TALLE_CEGID  || '').toString().trim();
+                const t2 = (r.TALLE2_CEGID || '').toString().trim();
+                return t2 && t2 !== t1 ? `${t1}(${t2})` : t1;
+            });
+            previewEl.textContent = '📄 Rango: ' + rango.join(' – ');
+            previewEl.classList.remove('hidden');
+        }
+
+        function getTalleString() {
+            // DB mode
+            const desdeEl = document.getElementById('talle_desde_sel');
+            const hastaEl = document.getElementById('talle_hasta_sel');
+            if (desdeEl && !document.getElementById('talles-db-section').classList.contains('hidden')) {
+                const di = parseInt(desdeEl.value);
+                const hi = parseInt(hastaEl.value);
+                if (!isNaN(di) && !isNaN(hi) && hi >= di && _tallesDB.length > 0) {
+                    return _tallesDB.slice(di, hi + 1).map(r => {
+                        const t1 = (r.TALLE_CEGID  || '').toString().trim();
+                        const t2 = (r.TALLE2_CEGID || '').toString().trim();
+                        return t2 && t2 !== t1 ? `${t1}(${t2})` : t1;
+                    }).join(', ');
+                }
+            }
+            // Manual fallback
+            const d = (document.getElementById('talle_desde') || {}).value || '';
+            const h = (document.getElementById('talle_hasta') || {}).value || '';
+            return d && h ? `${d} - ${h}` : (d || h || '');
+        }
+
+        function openImgPreview(src) {
+            document.getElementById('img-preview-full').src = src;
+            document.getElementById('img-preview-modal').style.display = 'flex';
+        }
+
+        function closeImgPreview() {
+            document.getElementById('img-preview-modal').style.display = 'none';
+            document.getElementById('img-preview-full').src = '';
+        }
 
         // Settings
         function openSettings() { els.settingsModal.style.display = 'flex'; }
@@ -1057,8 +1601,9 @@
             els.canvas.width = els.video.videoWidth;
             els.canvas.height = els.video.videoHeight;
             els.canvas.getContext('2d').drawImage(els.video, 0, 0);
-            const raw = els.canvas.toDataURL('image/jpeg', 0.9);
-            currentImageBase64 = await resizeImage(raw, 1280, 0.82);
+            const raw = els.canvas.toDataURL('image/jpeg', 0.7);
+            currentImageBase64  = await resizeImage(raw, 900, 0.65);
+            originalImageBase64 = currentImageBase64;
             
             stopCamera();
             showImagePreview(currentImageBase64);
@@ -1071,7 +1616,8 @@
 
             const reader = new FileReader();
             reader.onload = async (e) => {
-                currentImageBase64 = await resizeImage(e.target.result, 1280, 0.82);
+                currentImageBase64  = await resizeImage(e.target.result, 900, 0.65);
+                originalImageBase64 = currentImageBase64;
                 showImagePreview(currentImageBase64);
                 analyzeWithAI(currentImageBase64);
             };
@@ -1090,7 +1636,8 @@
         }
 
         function resetImage() {
-            currentImageBase64 = null;
+            currentImageBase64  = null;
+            originalImageBase64 = null;
             els.imagePreview.style.display = 'none';
             els.placeholder.style.display = 'block';
             els.initialBtns.classList.remove('hidden');
@@ -1128,17 +1675,20 @@ eligiendo ÚNICAMENTE entre los valores permitidos para cada campo:
 {
   "nommarca": "nombre exacto de la marca del producto visible en la imagen (ej: Nike, Adidas, Puma) o null",
   "nomseccion": "(Accesorios|0|Calzados|Indumentaria)",
-  "nomgenero": "(DAMA|HOMBRE|NIÑA|NIÑO|UNISEX|null)",
+  "nomgenero": "(MUJER|HOMBRE|NIÑA|NIÑO|UNISEX|SIN ESPECIFICAR)",
   "nomflia": "(ACC.CUIDADO PERSONAL|ACC.DEP.HOCKEY|ACC.DEP.OUTDOORS|ACC.DEP.RUNNING|ACC.DEP.TRAINING|ACC.DEPORTIVOS|ACC.MARROQUINERIA|ACC.DEP.TENIS|ACC.MODA|ACC.DEP.NATACION|ACC.DEP.CICLISMO|ACC.DEP.FUTBOL|ACC.DEP.RUGBY|ACC.LIMPIEZA DEL CALZADO|990|CALZADO DEPORTIVO|INDUM.URBANO|INDUM.TRAINING|CALZADO INF. VESTIR|INDUM.FUTBOL|CALZADO T. LIBRE|CALZADO URBANO|INDUM.CICLISMO|INDUM.HOKEY|INDUM.NATACION|INDUM.OUTDOORS|INDUM.RUNNING|INDUM.TENIS|INDUM.BASQUET|INDUM.RUGBY|Indum.TRAINING|INDUM.COLEGIAL|Indum.FUTBOL)",
-  "nomlinea": "(PERFUME|BOLSOS|CANILLERAS|ENTRENAMIENTO|GORROS INVIERNO|GUANTES|MEDIAS|MOCHILAS|PALOS DE HOCKEY|REPUESTOS|PROTECCIONES|RINONERAS|GORRAS Y PILUSOS|HIDRATACION|BILLETERAS/FICHEROS|CARTERAS|PELOTAS VARIAS|VALIJAS|TALCOS|BICICLETA|PELOTAS FUTBOL|CINTOS|MOCHILA COLEGIAL|MODA|PANUELOS / CHALINAS|PLANTILLAS|ANTIPARRAS|GORROS NATACION|PALETAS Y RAQUETAS|RELOJES|TENIS|HOCKEY|TRAINING|ROLLER TABLAS Y PATINES|ANT NOLIN|RUNNING|LENTES|FUTBOL FG|FUTBOL TF|NATACION|SANDALIAS|BASQUET|FUTBOL|OUT DOORS|POMADAS|Botas Clásicas|OUTDOORS|DEPORTES VARIOS|MALETINES|TRAIL RUNNING|ALPARGATAS|REMERAS|DEPORTIVAS|BORCEGO|BOTAS CLÁSICAS|BOTAS MODA|CHATITAS/BALERINAS|CHINELAS Y PANTUFLAS|GUARACHAS|LONA CASUAL|MOCASIN|OJOTAS|SANDALIA VESTIR|SANDALIAS CLÁSICAS|SANDALIAS INFORMAL|ZAPATO URBANO|ZAPATOS VESTIR|SANDALIAS Y ZUECOS AGUA|ZUECOS CLÁSICOS|ZUECOS MODA|CHINELAS AGUA|OJOTAS AGUA|GUILLERMINA COLEGIAL|VESTIR/INFORMAL|RUGBY|BOTAS/BOTINETAS|MOCASINES/NAUTICOS|ZPTOS SUPERCONFORT|COLEGIAL DEPORTIVO|CALZA|PANTALON|CAMISETA|CAMPERAS|MUSCULOSA|TRAJE DE BAÑO|BUZO|CHALECO|ZAPATO COLEGIAL|ROMPEVIENTOS|SHORT|TOP DEPORTIVO|FALDA|POLOS|BERMUDA|CONJUNTOS|ABRIGOS|NAUTICO COLEGIAL|VESTIDO|SHORT BAÑO|CAMISAS|BIKINIS/MALLAS|ROPA INTERIOR)",
-  "temporada": "(TODO TIEMPO|INVIERNO|COLEGIAL|VERANO|LINEA|ALTO VERANO|ALTO INVIERNO|2|null)",
+  "nomlinea": "(PERFUME|BOLSOS|CANILLERAS|ENTRENAMIENTO|GORROS INVIERNO|GUANTES|MEDIAS|MOCHILAS|PALOS DE HOCKEY|REPUESTOS|PROTECCIONES|RINONERAS|GORRAS Y PILUSOS|HIDRATACION|BILLETERAS/FICHEROS|CARTERAS|PELOTAS VARIAS|VALIJAS|TALCOS|BICICLETA|PELOTAS FUTBOL|CINTOS|MOCHILA COLEGIAL|MODA|PANUELOS / CHALINAS|PLANTILLAS|ANTIPARRAS|GORROS NATACION|PALETAS Y RAQUETAS|RELOJES|TENIS|HOCKEY|TRAINING|roller TABLAS Y PATINES|ANT NOLIN|RUNNING|LENTES|FUTBOL FG|FUTBOL TF|NATACION|SANDALIAS|BASQUET|FUTBOL|OUT DOORS|POMADAS|Botas Clásicas|OUTDOORS|DEPORTES VARIOS|MALETINES|TRAIL RUNNING|ALPARGATAS|REMERAS|DEPORTIVAS|BORCEGO|BOTAS CLÁSICAS|BOTAS MODA|CHATITAS/BALERINAS|CHINELAS Y PANTUFLAS|GUARACHAS|LONA CASUAL|MOCASIN|OJOTAS|SANDALIA VESTIR|SANDALIAS CLÁSICAS|SANDALIAS INFORMAL|ZAPATO URBANO|ZAPATOS VESTIR|SANDALIAS Y ZUECOS AGUA|ZUECOS CLÁSICOS|ZUECOS MODA|CHINELAS AGUA|OJOTAS AGUA|GUILLERMINA COLEGIAL|VESTIR/INFORMAL|RUGBY|BOTAS/BOTINETAS|MOCASINES/NAUTICOS|ZPTOS SUPERCONFORT|COLEGIAL DEPORTIVO|CALZA|PANTALON|CAMISETA|CAMPERAS|MUSCULOSA|TRAJE DE BAÑO|BUZO|CHALECO|ZAPATO COLEGIAL|ROMPEVIENTOS|SHORT|TOP DEPORTIVO|FALDA|POLOS|BERMUDA|CONJUNTOS|ABRIGOS|NAUTICO COLEGIAL|VESTIDO|SHORT BAÑO|CAMISAS|BIKINIS/MALLAS|ROPA INTERIOR)",
+  "temporada": "(TODO TIEMPO|INVIERNO|COLEGIAL|VERANO|LINEA|ALTO VERANO|ALTO INVIERNO)",
   "descripcion": "descripción breve del producto en español",
-  "color": "color principal del producto",
-  "tituloseo": "título SEO del producto siguiendo la estructura: PRODUCTO + MARCA + MODELO + USUARIO + ATRIBUTO. Ejemplo: Zapatillas Nike Air Max Running Hombre Negras. Máximo 70 caracteres.",
+  "color": "color principal del producto, la separacion de colores, debe ser con Guion medio "-" ",
+  "material": "(CUERO|GOMA EVA|PVC|SINTETICO|TEXTIL) o null",
+  "tituloseo": "título SEO del producto siguiendo la estructura: PRODUCTO + MARCA + USUARIO + MODELO + ATRIBUTO. Ejemplo: Zapatillas Nike Air Max Hombre Air Max Running Negras. Máximo 70 caracteres.",
+  "nomdep": "(Urbano|Fútbol|Training|Outdoors|Tenis|Rugby|Básquet|Hockey|Natación|Ciclismo|Running) o null",
   "confianza": "ALTA|MEDIA|BAJA"
 }
 
 REGLAS IMPORTANTES:
+- nomdep es el departamento deportivo al que pertenece el producto. Elegir el que mejor se corresponda con el tipo de producto.
 - Detecta el logo o etiqueta visible en la imagen para identificar 'nommarca'
 - Si es un calzado, nomseccion DEBE ser "Calzados"
 - Si es ropa/indumentaria, nomseccion DEBE ser "Indumentaria"  
@@ -1187,8 +1737,10 @@ REGLAS IMPORTANTES:
                 applyAiSuggestion('nomlinea', aiData.nomlinea);
                 applyAiSuggestion('temporada', aiData.temporada);
                 applyAiSuggestion('descripcion', aiData.descripcion);
-                applyAiSuggestion('color', aiData.color);
-                applyAiSuggestion('tituloseo', aiData.tituloseo);
+                matchColor(aiData.color);
+                applyAiSuggestion('material', aiData.material);
+                applyAiSuggestion('tituloseo', aiData.tituloseo ? aiData.tituloseo.toUpperCase() : null);
+                applyAiSuggestion('nomdep', aiData.nomdep);
 
                 if (aiData.confianza === 'BAJA') {
                     els.warningBanner.style.display = 'flex';
@@ -1266,12 +1818,12 @@ REGLAS IMPORTANTES:
             const nanoStatusEl = document.getElementById('nano-status');
             nanoStatusEl.style.display = 'flex';
             nanoStatusEl.textContent = '✨ Procesando imagen con Nano Banana...';
-            
+
             try {
                 const mimeMatch = currentImageBase64.match(/data:(.*?);base64/);
                 const dynamicMimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
                 const base64Data = currentImageBase64.split(',')[1];
-                
+
                 const requestBody = JSON.stringify({
                     contents: [{
                         parts: [
@@ -1310,19 +1862,19 @@ REGLAS IMPORTANTES:
                 }
 
                 const result = await response.json();
-                
+
                 // Extraer el base64 de la imagen devuelta (puede venir en cualquier part)
                 const parts = result?.candidates?.[0]?.content?.parts || [];
                 const imagePart = parts.find(p => p.inlineData?.data);
-                
+
                 if (!imagePart) {
                     throw new Error("Respuesta del modelo sin imagen: " + JSON.stringify(result));
                 }
-                
+
                 const editedBase64 = imagePart.inlineData.data;
                 const editedMimeType = imagePart.inlineData.mimeType || "image/jpeg";
                 const downloadUrl = `data:${editedMimeType};base64,${editedBase64}`;
-                
+
                 // Actualizar previsualización
                 currentImageBase64 = downloadUrl;
                 document.getElementById('image-preview').src = currentImageBase64;
@@ -1357,126 +1909,219 @@ REGLAS IMPORTANTES:
         }
 
         // Form & Data Logic
-        function saveProduct(e) {
+        async function saveProduct(e) {
             e.preventDefault();
-            
+
             const product = {
-                id: Date.now(),
-                image: currentImageBase64,
-                nommarca: document.getElementById('nommarca').value,
-                nomprov: document.getElementById('nomprov').value,
-                nomseccion: document.getElementById('nomseccion').value,
-                nomgenero: document.getElementById('nomgenero').value,
-                nomflia: document.getElementById('nomflia').value,
-                nomlinea: document.getElementById('nomlinea').value,
-                temporada: document.getElementById('temporada').value,
-                codarticulo: document.getElementById('codarticulo').value,
-                tituloseo: document.getElementById('tituloseo').value,
-                descripcion: document.getElementById('descripcion').value,
-                color: document.getElementById('color').value,
-                talle: document.getElementById('talle').value,
-                costo: document.getElementById('costo').value,
-                precio: document.getElementById('precio').value,
-                observaciones: document.getElementById('observaciones').value,
-                timestamp: new Date().toISOString()
+                codarticulo:     document.getElementById('codarticulo').value,
+                nommarca:        document.getElementById('nommarca').value,
+                nomprov:         document.getElementById('nomprov').value,
+                nomseccion:      document.getElementById('nomseccion').value,
+                nomgenero:       document.getElementById('nomgenero').value,
+                nomflia:         document.getElementById('nomflia').value,
+                nomlinea:        document.getElementById('nomlinea').value,
+                temporada:       document.getElementById('temporada').value,
+                tituloseo:       document.getElementById('tituloseo').value,
+                descripcion:     document.getElementById('descripcion').value,
+                color:           document.getElementById('color').value,
+                material:        document.getElementById('material').value,
+                talle:           getTalleString(),
+                costo:           document.getElementById('costo').value,
+                precio:          document.getElementById('precio').value,
+                nomdep:          document.getElementById('nomdep').value,
+                disponibilidad:  getDisponibilidad(),
+                observaciones:   document.getElementById('observaciones').value,
+                imagen_original: originalImageBase64,
+                imagen_editada:  (currentImageBase64 !== originalImageBase64) ? currentImageBase64 : null
             };
 
-            products.push(product);
-            saveToStorage();
-            updateTable();
-            clearForm();
-            alert("✅ Producto guardado exitosamente");
+            try {
+                const res  = await fetch('/api/productos', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify(product)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                showToast('success', 'Producto guardado', `ID asignado: ${data.id}`);
+                clearForm();
+                updateTable();
+            } catch (err) {
+                showToast('error', 'Error al guardar', err.message);
+            }
         }
+
+        function getDisponibilidad() {
+            return Array.from(document.querySelectorAll('#disponibilidad-container input[type=checkbox]:checked'))
+                .map(cb => cb.value)
+                .join(', ');
+        }
+
+        function toggleDispDropdown() {
+            const panel = document.getElementById('disponibilidad-container');
+            const btn   = document.getElementById('disp-btn');
+            const open  = panel.style.display === 'none';
+            panel.style.display = open ? 'block' : 'none';
+            btn.classList.toggle('open', open);
+        }
+
+        function updateDispBtn() {
+            const checked = document.querySelectorAll('#disponibilidad-container input[type=checkbox]:checked');
+            document.getElementById('disp-btn-label').textContent =
+                checked.length === 0 ? 'Sin seleccionar' : checked.length + ' seleccionado' + (checked.length > 1 ? 's' : '');
+        }
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('[data-disp-wrapper]')) {
+                const panel = document.getElementById('disponibilidad-container');
+                if (panel) panel.style.display = 'none';
+                const btn = document.getElementById('disp-btn');
+                if (btn) btn.classList.remove('open');
+            }
+        });
 
         function clearForm() {
             els.form.reset();
             resetImage();
             document.querySelectorAll('.ai-suggested').forEach(el => el.classList.remove('ai-suggested'));
+            document.getElementById('talles-status').classList.add('hidden');
+            document.getElementById('talles-db-section').classList.add('hidden');
+            document.getElementById('talles-manual').classList.add('hidden');
+            document.getElementById('nomdep').value = '';
+            document.querySelectorAll('#disponibilidad-container input[type=checkbox]').forEach(cb => cb.checked = false);
+            updateDispBtn();
+            document.getElementById('talles-rango-preview').classList.add('hidden');
+            document.getElementById('talles-chips').innerHTML = '';
+            _tallesDB = [];
         }
 
-        function deleteProduct(id) {
-            if (confirm("¿Estás seguro de eliminar este registro?")) {
-                products = products.filter(p => p.id !== id);
-                saveToStorage();
+        async function deleteProduct(id) {
+            if (!confirm('¿Estás seguro de eliminar este registro?')) return;
+            try {
+                const res  = await fetch(`/api/productos/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
                 updateTable();
+            } catch (err) {
+                alert('Error al eliminar: ' + err.message);
             }
         }
 
-        function saveToStorage() {
-            localStorage.setItem('vallejo_products', JSON.stringify(products));
-        }
+        async function updateTable() {
+            try {
+                const res      = await fetch('/api/productos');
+                const products = await res.json();
 
-        function updateTable() {
-            els.itemCount.textContent = products.length;
-            els.tableBody.innerHTML = '';
-            
-            if (products.length === 0) {
-                els.tableBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color: #757575; padding: 20px;">No hay productos cargados en esta sesión.</td></tr>';
-                return;
+                els.itemCount.textContent = products.length;
+                els.tableBody.innerHTML   = '';
+
+                if (products.length === 0) {
+                    els.tableBody.innerHTML = '<tr><td colspan="12" style="text-align:center; color: #757575; padding: 20px;">No hay productos cargados.</td></tr>';
+                    return;
+                }
+
+                products.forEach(p => {
+                    const imgSrc = p.imagen_editada
+                        ? `/uploads/${p.imagen_editada}`
+                        : (p.imagen_original ? `/uploads/${p.imagen_original}` : null);
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${imgSrc ? `<img src="${imgSrc}" class="thumb-sm" alt="thumb" onclick="openImgPreview('${imgSrc}')">` : '➖'}</td>
+                        <td><span class="cell" title="${p.nommarca || ''}">${p.nommarca || '-'}</span></td>
+                        <td><span class="cell" title="${p.nomprov || ''}">${p.nomprov || '-'}</span></td>
+                        <td>${p.codarticulo || '-'}</td>
+                        <td>${p.nomseccion || '-'}</td>
+                        <td>${p.departamento || p.nomdep || '-'}</td>
+                        <td><span class="cell-wrap" title="${p.disponibilidad || ''}">${p.disponibilidad || '-'}</span></td>
+                        <td><span class="cell" title="${p.nomflia || ''}">${p.nomflia || '-'}</span></td>
+                        <td><span class="cell" title="${p.color || ''}">${p.color || '-'}</span></td>
+                        <td>${p.costo ? '$'+p.costo : '-'}</td>
+                        <td>${p.precio ? '$'+p.precio : '-'}</td>
+                        <td><button class="btn btn-danger" style="padding:6px 10px;font-size:0.8rem;" onclick="deleteProduct(${p.id})">🗑️</button></td>
+                    `;
+                    els.tableBody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error('Error cargando productos:', err);
+                els.tableBody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:red;padding:20px;">Error al cargar productos del servidor.</td></tr>';
             }
-
-            products.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${p.image ? `<img src="${p.image}" class="thumb-sm" alt="thumb">` : '➖'}</td>
-                    <td>${p.nommarca || '-'}</td>
-                    <td><div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;" title="${p.nomprov || ''}">${p.nomprov || '-'}</div></td>
-                    <td><b>${p.codarticulo || '-'}</b></td>
-                    <td>${p.nomseccion}</td>
-                    <td><div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;" title="${p.nomflia}">${p.nomflia}</div></td>
-                    <td>${p.color || '-'}</td>
-                    <td>${p.costo ? '$'+p.costo : '-'}</td>
-                    <td>${p.precio ? '$'+p.precio : '-'}</td>
-                    <td>
-                        <button class="btn btn-danger" style="padding: 6px 10px; font-size: 0.8rem;" onclick="deleteProduct(${p.id})">🗑️</button>
-                    </td>
-                `;
-                els.tableBody.appendChild(tr);
-            });
         }
 
         // CSV Export (Excel Compatible with UTF-8 BOM)
-        function exportToCSV() {
+        async function exportToCSV() {
+            let products;
+            try {
+                const res = await fetch('/api/productos');
+                products  = await res.json();
+            } catch (err) {
+                return alert('Error al obtener datos para exportar.');
+            }
             if (products.length === 0) return alert("No hay datos para exportar.");
 
             const headers = [
-                "ID", "Fecha", "Marca", "Proveedor", "Sección", "Género", "Familia", "Línea", "Temporada",
-                "Código", "Título SEO", "Descripción", "Color", "Talle", "Costo", "PVP", "Observaciones"
+                "ID", "Fecha", "Marca", "Proveedor", "Sección", "Departamento", "Disponibilidad", "Género", "Familia", "Línea", "Temporada",
+                "Código", "Título SEO", "Descripción", "Color", "Material", "Talle", "Costo", "PVP", "Observaciones"
             ];
 
             const rows = products.map(p => [
                 p.id,
-                new Date(p.timestamp).toLocaleString(),
-                p.nommarca || '',
-                p.nomprov || '',
-                p.nomseccion,
-                p.nomgenero,
-                p.nomflia,
-                p.nomlinea,
-                p.temporada,
-                p.codarticulo,
-                `"${(p.tituloseo||'').replace(/"/g, '""')}"`,
-                `"${(p.descripcion||'').replace(/"/g, '""')}"`,
-                p.color,
-                p.talle,
-                p.costo,
-                p.precio,
+                p.ts ? new Date(p.ts).toLocaleString() : '',
+                p.nommarca     || '',
+                p.nomprov      || '',
+                p.nomseccion   || '',
+                p.departamento || p.nomdep || '',
+                `"${(p.disponibilidad||'').replace(/"/g, '""')}"`,
+                p.nomgenero    || '',
+                p.nomflia      || '',
+                p.nomlinea     || '',
+                p.temporada    || '',
+                p.codarticulo  || '',
+                `"${(p.tituloseo    ||'').replace(/"/g, '""')}"`,
+                `"${(p.descripcion  ||'').replace(/"/g, '""')}"`,
+                p.color    || '',
+                p.material || '',
+                p.talle    || '',
+                p.costo  || '',
+                p.precio || '',
                 `"${(p.observaciones||'').replace(/"/g, '""')}"`
             ]);
 
             const csvContent = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
-            const bom = "\uFEFF";
+            const bom  = "\uFEFF";
             const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
-            
+
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
+            const a   = document.createElement('a');
+            a.href     = url;
             a.download = `Productos_Vallejo_${new Date().toISOString().slice(0,10)}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
+        function showToast(type, title, msg, duration = 4000) {
+            const container = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `
+                <span class="toast-icon">${type === 'success' ? '✅' : '❌'}</span>
+                <div class="toast-body">
+                    <div class="toast-title">${title}</div>
+                    ${msg ? `<div class="toast-msg">${msg}</div>` : ''}
+                </div>
+                <button class="toast-close" onclick="dismissToast(this.parentElement)">✕</button>
+            `;
+            container.appendChild(t);
+            setTimeout(() => dismissToast(t), duration);
+        }
+        function dismissToast(el) {
+            if (!el || el.classList.contains('hiding')) return;
+            el.classList.add('hiding');
+            setTimeout(() => el.remove(), 280);
+        }
     </script>
+
+    <div id="toast-container"></div>
 </body>
 </html>
