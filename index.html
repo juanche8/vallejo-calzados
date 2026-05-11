@@ -1123,9 +1123,11 @@
             const hint = document.getElementById('nueva-marca-hint');
             const matchKey = Object.keys(brandProviderMap).find(k => k.toLowerCase() === brand.toLowerCase());
             if (matchKey) {
-                const providers = brandProviderMap[matchKey];
-                provDatalist.innerHTML = providers.map(p => `<option value="${p}">`).join('');
-                provInput.value = providers[0];
+                const entry = brandProviderMap[matchKey];
+                const providers = entry?.proveedores ?? (Array.isArray(entry) ? entry : []);
+                const toNombre = p => (typeof p === 'object' ? p.nombre : p);
+                provDatalist.innerHTML = providers.map(p => `<option value="${toNombre(p)}">`).join('');
+                provInput.value = toNombre(providers[0]);
                 provInput.classList.add('ai-suggested');
                 provInput.addEventListener('change', () => provInput.classList.remove('ai-suggested'), {once: true});
                 hint.classList.add('hidden');
@@ -1345,9 +1347,11 @@
                 // Merge local pre-alta entries
                 localData.forEach(({ marca, proveedor }) => {
                     if (!marca) return;
-                    if (!brandProviderMap[marca]) brandProviderMap[marca] = [];
-                    if (proveedor && !brandProviderMap[marca].includes(proveedor))
-                        brandProviderMap[marca].push(proveedor);
+                    if (!brandProviderMap[marca]) brandProviderMap[marca] = { codmarca: null, proveedores: [] };
+                    const already = brandProviderMap[marca].proveedores.some(x =>
+                        (typeof x === 'object' ? x.nombre : x) === proveedor);
+                    if (proveedor && !already)
+                        brandProviderMap[marca].proveedores.push({ codigo: null, nombre: proveedor });
                 });
                 const marcasDatalist = document.getElementById('marcas-list');
                 Object.keys(brandProviderMap).sort().forEach(brand => {
@@ -1382,9 +1386,11 @@
                     body: JSON.stringify({ marca, proveedor, observaciones: obs })
                 });
                 // Update in-memory map and datalist
-                if (!brandProviderMap[marca]) brandProviderMap[marca] = [];
-                if (proveedor && !brandProviderMap[marca].includes(proveedor))
-                    brandProviderMap[marca].push(proveedor);
+                if (!brandProviderMap[marca]) brandProviderMap[marca] = { codmarca: null, proveedores: [] };
+                const alreadyLocal = brandProviderMap[marca].proveedores.some(x =>
+                    (typeof x === 'object' ? x.nombre : x) === proveedor);
+                if (proveedor && !alreadyLocal)
+                    brandProviderMap[marca].proveedores.push({ codigo: null, nombre: proveedor });
                 const marcasDatalist = document.getElementById('marcas-list');
                 if (![...marcasDatalist.options].some(o => o.value === marca)) {
                     const opt = document.createElement('option');
@@ -1405,11 +1411,18 @@
                 const res   = await fetch(url);
                 const items = await res.json();
                 const sel   = document.getElementById(selectId);
-                items.forEach(val => {
-                    if (!val) return;
+                items.forEach(item => {
+                    if (!item) return;
                     const opt = document.createElement('option');
-                    opt.value = val;
-                    opt.textContent = val;
+                    if (typeof item === 'object' && item.nombre) {
+                        // SP devuelve { codigo, nombre }
+                        opt.value = item.nombre;          // valor guardado = nombre (compat. con insert SP)
+                        opt.textContent = item.nombre;
+                        if (item.codigo != null) opt.dataset.codigo = item.codigo;
+                    } else {
+                        opt.value = item;
+                        opt.textContent = item;
+                    }
                     sel.appendChild(opt);
                 });
             } catch (e) { console.error(`Error cargando ${selectId}:`, e); }

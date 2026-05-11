@@ -163,24 +163,40 @@ app.get('/api/marcas-proveedores', async (req, res) => {
         const r = await p.request().execute('SP_OBTENER_MARCA_PROVEEDOR');
         const map = {};
         r.recordset.forEach(row => {
-            const vals  = Object.values(row);
-            const marca = row.nommarca ?? vals[0];
-            const prov  = row.nomprov  ?? vals[1];
+            const vals     = Object.values(row);
+            // Soporta CODMARCA, NOMMARCA, CODPROV, NOMPROV (mayúsculas o minúsculas)
+            const codMarca = row.CODMARCA ?? row.codmarca ?? (vals.length >= 1 ? vals[0] : null);
+            const marca    = row.NOMMARCA ?? row.nommarca ?? (vals.length >= 2 ? vals[1] : vals[0]);
+            const codProv  = row.CODPROV  ?? row.codprov  ?? (vals.length >= 3 ? vals[2] : null);
+            const nomProv  = row.NOMPROV  ?? row.nomprov  ?? (vals.length >= 4 ? vals[3] : vals[1]);
             if (!marca) return;
-            if (!map[marca]) map[marca] = [];
-            if (prov && !map[marca].includes(prov)) map[marca].push(prov);
+            if (!map[marca]) map[marca] = { codmarca: codMarca, proveedores: [] };
+            const already = map[marca].proveedores.some(x => x.nombre === nomProv);
+            if (nomProv && !already) map[marca].proveedores.push({ codigo: codProv ?? null, nombre: nomProv });
         });
         res.json(map);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Generic single-column lookup helper
+// Generic lookup helper — devuelve { codigo, nombre } si el SP tiene 2+ columnas,
+// o string plano si solo tiene 1.
 function lookupRoute(route, spName) {
     app.get(route, async (req, res) => {
         try {
             const p = await getPool();
             const r = await p.request().execute(spName);
-            res.json(r.recordset.map(row => Object.values(row)[0]).filter(Boolean));
+            const rows = r.recordset;
+            if (!rows.length) return res.json([]);
+            const cols = Object.keys(rows[0]);
+            if (cols.length >= 2) {
+                // Primera columna = código, segunda = nombre
+                res.json(rows
+                    .map(row => ({ codigo: row[cols[0]], nombre: row[cols[1]] }))
+                    .filter(x => x.nombre)
+                );
+            } else {
+                res.json(rows.map(row => row[cols[0]]).filter(Boolean));
+            }
         } catch (e) { res.status(500).json({ error: e.message }); }
     });
 }
@@ -204,6 +220,53 @@ app.get('/api/colores', async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Árbol de categorías eCommerce (Vallejo + SPT) por códigos CEGID
+// GET /api/categorias-ecomm?genero=2&seccion=1&familia=130&linea=119
+app.get('/api/categorias-ecomm', async (req, res) => {
+    const { genero, seccion, familia, linea } = req.query;
+    if (!genero || !seccion || !familia || !linea)
+        return res.status(400).json({ error: 'Se requieren: genero, seccion, familia, linea' });
+    try {
+        const p = await getPool();
+        const r = await p.request()
+            .input('cegid_genero',  sql.Int, parseInt(genero))
+            .input('cegid_seccion', sql.Int, parseInt(seccion))
+            .input('cegid_familia', sql.Int, parseInt(familia))
+            .input('cegid_linea',   sql.Int, parseInt(linea))
+            .query(`SELECT * FROM dbo.fn_Traducir_Niveles_CEGID_a_Ecommerce(
+                @cegid_genero, @cegid_seccion, @cegid_familia, @cegid_linea)`);
+        const row = r.recordset[0] ?? {};
+        res.json({
+            vallejo: {
+                nivel1: { codigo: row.Vallejo_CodNivel1 ?? null, nombre: row.Vallejo_NomNivel1 ?? null },
+                nivel2: { codigo: row.Vallejo_CodNivel2 ?? null, nombre: row.Vallejo_NomNivel2 ?? null },
+                nivel3: { codigo: row.Vallejo_CodNivel3 ?? null, nombre: row.Vallejo_NomNivel3 ?? null },
+            },
+            spt: {
+                nivel1: { codigo: row.SPT_CodNivel1 ?? null, nombre: row.SPT_NomNivel1 ?? null },
+                nivel2: { codigo: row.SPT_CodNivel2 ?? null, nombre: row.SPT_NomNivel2 ?? null },
+                nivel3: { codigo: row.SPT_CodNivel3 ?? null, nombre: row.SPT_NomNivel3 ?? null },
+            }
+        });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Catálogos CEGID filtrados por nombre (todos los parámetros opcionales)
+// GET /api/catalogos-cegid?NomSeccion=...&NomGenero=...&NomFamilia=...&NomLinea=...
+app.get('/api/catalogos-cegid', async (req, res) => {
+    const { NomSeccion, NomGenero, NomFamilia, NomLinea } = req.query;
+    try {
+        const p = await getPool();
+        const r = await p.request()
+            .input('NomSeccion', sql.NVarChar(60), NomSeccion || null)
+            .input('NomGenero',  sql.NVarChar(60), NomGenero  || null)
+            .input('NomFamilia', sql.NVarChar(80), NomFamilia || null)
+            .input('NomLinea',   sql.NVarChar(80), NomLinea   || null)
+            .execute('SP_OBTENER_CATALOGOS_CEGID');
+        res.json(r.recordset);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // Talles por marca+género+sección
 app.get('/api/talles', async (req, res) => {
     const { nommarca, nomgenero, nomseccion } = req.query;
@@ -215,6 +278,15 @@ app.get('/api/talles', async (req, res) => {
             .input('nomgenero',  sql.VarChar(100), nomgenero)
             .input('nomseccion', sql.VarChar(100), nomseccion || '')
             .execute('SP_OBTENER_DIMENSION_TALLES');
+        res.json(r.recordset);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Postventa: Sucursales ─────────────────────────────────────────────────────
+app.get('/api/sucursales', async (req, res) => {
+    try {
+        const p = await getPool();
+        const r = await p.request().execute('SP_POSTVENTA_OBTENER_SUCURSALES');
         res.json(r.recordset);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
